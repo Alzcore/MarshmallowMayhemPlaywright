@@ -1,4 +1,4 @@
-import { APIRequestContext } from '@playwright/test';
+import test, { APIRequestContext } from '@playwright/test';
 
 export class UnrealRCClient {
     private baseUrl: string;
@@ -10,15 +10,21 @@ export class UnrealRCClient {
     }
 
     async callFunction(objectPath: string, functionName: string, parameters: Record<string, any> = {}): Promise<any> {
-        const response = await this.request.put(`${this.baseUrl}/remote/object/call`, {
-            data: { objectPath, functionName, parameters }
+        // Wrap the entire API call in a test.step!
+        return await test.step(`${functionName}`, async () => {
+
+            const response = await fetch(`${this.baseUrl}/remote/object/call`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ objectPath, functionName, parameters })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Unreal API Error: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            return data.ReturnValue;
         });
-
-        if (!response.ok()) {
-            throw new Error(`Unreal API Error: ${response.statusText()}`);
-        }
-
-        const data = await response.json();
-        return data.ReturnValue;
     }
 }
