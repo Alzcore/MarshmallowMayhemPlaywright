@@ -1,6 +1,7 @@
 import { UnrealRCClient } from './unreal-rc-client';
 import { UnrealLocator } from './unreal-locator';
 import { step } from '../support/decorators';
+import { waitForCondition } from '../support/polling';
 
 export type LocatorConstructor<T extends UnrealLocator> = new (
     client: UnrealRCClient,
@@ -111,5 +112,42 @@ export class UnrealWorld {
         } else {
             return new classOrString(this.client, [actorPath], description);
         }
+    }
+
+    async waitForActor<T extends UnrealLocator>(
+        LocatorClass: LocatorConstructor<T>,
+        options?: { tag?: string; overrideClassName?: string; timeout?: number }
+    ): Promise<T>;
+
+    async waitForActor(
+        className: string,
+        options?: { tag?: string; timeout?: number }
+    ): Promise<UnrealLocator>;
+
+    @step('Wait For Actor: {1}')
+    async waitForActor(
+        classOrString: any,
+        options?: { tag?: string; overrideClassName?: string; timeout?: number }
+    ): Promise<any> {
+
+        return await waitForCondition(async () => {
+            // 1. Try to get the actor using our existing method
+            const actor = await this.getByActor(classOrString, {
+                tag: options?.tag,
+                overrideClassName: options?.overrideClassName
+            });
+
+            // 2. If the locator found paths, the actor exists! Return it.
+            if (actor.objectPaths.length > 0) {
+                return actor;
+            }
+
+            // 3. Otherwise, return null to keep polling
+            return null;
+
+        }, {
+            timeout: options?.timeout || 10000,
+            message: `Waiting for ${options?.tag || classOrString.name} to spawn in world`
+        });
     }
 }

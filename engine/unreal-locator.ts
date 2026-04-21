@@ -1,4 +1,5 @@
 // engine/unreal-locator.ts
+import { waitForCondition } from '../support/polling';
 import { UnrealRCClient } from './unreal-rc-client';
 
 export class UnrealLocator {
@@ -69,5 +70,25 @@ export class UnrealLocator {
         });
 
         return value;
+    }
+
+    /**
+   * Pauses test execution until a GAS attribute matches the expected value.
+   */
+    @step('Wait For Attribute: {0}.{1} == {2}')
+    async waitForGasAttribute(
+        setName: string,
+        propertyName: string,
+        expectedValue: number,
+        options?: { timeout?: number }
+    ): Promise<void> {
+
+        await waitForCondition(async () => {
+            const currentValue = await this.getGasAttribute(setName, propertyName);
+            return currentValue === expectedValue;
+        }, {
+            timeout: options?.timeout || 5000,
+            message: `Expected ${propertyName} to be ${expectedValue}`
+        });
     }
 }
