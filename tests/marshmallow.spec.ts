@@ -1,7 +1,9 @@
 
 import { test } from '../fixtures/unreal-test.fixture';
 import { MMCharacter } from '../game-objects/characters/mm-character'
+import { GameAssets } from '../support/assets';
 import { expect } from '../support/custom-matchers';
+import { GameplayTags } from '../support/tags';
 
 test('Punching another marshmallow lowers there health', async ({ world, page }) => {
 
@@ -19,3 +21,11 @@ test('Punching another marshmallow lowers there health', async ({ world, page })
     await page.waitForTimeout(1000);
 
 });
+
+test('Marshmallow catches fire when standing in fire', async ({ world, page }) => {
+    const marshmallow = await world.spawnActor(MMCharacter, GameAssets.Characters.Marshmallow)
+    await expect(marshmallow).not.toHaveGameplayTag(GameplayTags.Status.OnFire);
+    await world.spawnActor('Hazard', GameAssets.Hazards.Fire)
+
+    await expect(marshmallow).toHaveGameplayTag(GameplayTags.Status.OnFire);
+})

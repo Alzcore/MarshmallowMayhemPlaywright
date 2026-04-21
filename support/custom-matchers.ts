@@ -37,5 +37,59 @@ export const expect = baseExpect.extend({
             pass: false,
             message: () => `Timed out waiting for ${setName}.${propertyName} to be ${expectedValue}. Last recorded value was ${currentValue}.`,
         };
+    },
+
+    async toHaveActiveEffect(
+        locator: UnrealLocator,
+        effectBlueprintPath: string,
+        options = { timeout: 5000 }
+    ) {
+        const startTime = Date.now();
+        let hasEffect = false;
+
+        // Polling Loop
+        while (Date.now() - startTime < options.timeout) {
+            hasEffect = await locator.hasActiveEffect(effectBlueprintPath);
+
+            // If the current state matches what the user is expecting, break the loop early!
+            // (If isNot is true, we want hasEffect to be false. If isNot is false, we want hasEffect to be true).
+            if (hasEffect !== this.isNot) {
+                break;
+            }
+
+            await new Promise(r => setTimeout(r, 100)); // Tick wait
+        }
+
+        // Playwright standard: 'pass' should reflect the positive statement. 
+        // Playwright will automatically invert it if the user called .not
+        return {
+            pass: hasEffect,
+            message: () => `Timed out waiting for actor to ${this.isNot ? 'lose' : 'gain'} effect: ${effectBlueprintPath}`,
+        };
+    },
+    async toHaveGameplayTag(
+        locator: UnrealLocator,
+        tag: string,
+        options = { timeout: 5000 }
+    ) {
+        const startTime = Date.now();
+        let hasTag = false;
+
+        // Polling Loop
+        while (Date.now() - startTime < options.timeout) {
+            hasTag = await locator.hasGameplayTag(tag);
+
+            // Break early if the current state matches the expected state (handling .not)
+            if (hasTag !== this.isNot) {
+                break;
+            }
+
+            await new Promise(r => setTimeout(r, 100)); // Tick wait
+        }
+
+        return {
+            pass: hasTag,
+            message: () => `Timed out waiting for actor to ${this.isNot ? 'lose' : 'gain'} gameplay tag: ${tag}`,
+        };
     }
 });

@@ -1,4 +1,5 @@
 // engine/unreal-locator.ts
+import { step } from '../support/decorators';
 import { waitForCondition } from '../support/polling';
 import { UnrealRCClient } from './unreal-rc-client';
 
@@ -90,5 +91,49 @@ export class UnrealLocator {
             timeout: options?.timeout || 5000,
             message: `Expected ${propertyName} to be ${expectedValue}`
         });
+    }
+
+    /**
+   * Instantly applies a Gameplay Effect to this actor.
+   * @param blueprintPath The path to the GE (e.g., /Game/Abilities/Effects/GE_Poison.GE_Poison_C)
+   * @param level The level of the effect to apply (defaults to 1.0)
+   */
+    @step('Apply Effect: {0} (Level {1})')
+    async applyEffect(blueprintPath: string, level: number = 1.0): Promise<void> {
+        const success = await this.client.callFunction(this.helperLibraryPath, 'ApplyGameplayEffectToActor', {
+            ActorPath: this.getStrictPath(),
+            EffectClassPath: blueprintPath,
+            Level: level
+        });
+
+        if (!success) {
+            throw new Error(`Failed to apply Gameplay Effect: ${blueprintPath} to ${this.queryDescription}`);
+        }
+    }
+
+    /**
+   * Checks if a specific Gameplay Effect is currently active on this actor.
+   */
+    @step('Check Active Effect: {0}')
+    async hasActiveEffect(blueprintPath: string): Promise<boolean> {
+        const isActive = await this.client.callFunction(this.helperLibraryPath, 'HasActiveGameplayEffect', {
+            ActorPath: this.getStrictPath(),
+            EffectClassPath: blueprintPath
+        });
+
+        return isActive;
+    }
+
+    /**
+   * Queries the actor's Ability System Component for a specific Gameplay Tag.
+   */
+    @step('Check Gameplay Tag: {0}')
+    async hasGameplayTag(tag: string): Promise<boolean> {
+        const hasTag = await this.client.callFunction(this.helperLibraryPath, 'HasGameplayTag', {
+            ActorPath: this.getStrictPath(),
+            TagString: tag
+        });
+
+        return hasTag;
     }
 }
