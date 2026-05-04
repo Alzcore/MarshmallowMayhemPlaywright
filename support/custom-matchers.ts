@@ -1,6 +1,7 @@
 // support/custom-matchers.ts
 import { expect as baseExpect } from '@playwright/test';
 import { UnrealLocator } from '../engine/unreal-locator';
+import { calculateDistance, Vector3D } from './math';
 
 export const expect = baseExpect.extend({
 
@@ -112,6 +113,37 @@ export const expect = baseExpect.extend({
         return {
             pass: isVisible,
             message: () => `Timed out waiting for actor to ${this.isNot ? 'disappear from' : 'appear on'} the screen.`,
+        };
+    },
+    async toHaveMovedFurtherThan(
+        locator: UnrealLocator,
+        startLocation: Vector3D,
+        minDistance: number,
+        options = { timeout: 5000 } // Default to 5 seconds
+    ) {
+        const startTime = Date.now();
+        let passed = false;
+        let distanceTraveled = 0;
+
+        // Polling Loop: Keep checking the distance until time runs out
+        while (Date.now() - startTime < options.timeout) {
+            const currentLocation = await locator.getLocation();
+
+            distanceTraveled = calculateDistance(startLocation, currentLocation);
+            passed = distanceTraveled > minDistance;
+
+            // Break early if we hit our expected state (respecting Playwright's .not modifier)
+            if (passed !== this.isNot) {
+                break;
+            }
+
+            // Wait 100ms before asking the engine again
+            await new Promise(r => setTimeout(r, 100));
+        }
+
+        return {
+            pass: passed,
+            message: () => `Expected actor to have moved further than ${minDistance} units from start, but it only moved ${distanceTraveled.toFixed(2)} units (Timeout: ${options.timeout}ms).`,
         };
     }
 });

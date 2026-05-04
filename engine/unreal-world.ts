@@ -9,6 +9,12 @@ export type LocatorConstructor<T extends UnrealLocator> = new (
     description: string
 ) => T;
 
+export interface SpawnOptions {
+    location?: { X: number; Y: number; Z: number };
+    rotation?: { Pitch: number; Yaw: number; Roll: number };
+    tag?: string;
+}
+
 export class UnrealWorld {
     private helperPath = '/Script/MarshmallowMayhem.Default__PlaywrightHelperLibrary';
     private trackedActorPaths: string[] = [];
@@ -66,18 +72,14 @@ export class UnrealWorld {
     async spawnActor<T extends UnrealLocator>(
         LocatorClass: LocatorConstructor<T>,
         blueprintPath: string,
-        location?: { X: number, Y: number, Z: number },
-        rotation?: { Pitch: number, Yaw: number, Roll: number },
-        options?: { tag?: string } // <-- Add options here
+        options?: SpawnOptions
     ): Promise<T>;
 
     /** OVERLOAD 2: Passing a String */
     async spawnActor(
         className: string,
         blueprintPath: string,
-        location?: { X: number, Y: number, Z: number },
-        rotation?: { Pitch: number, Yaw: number, Roll: number },
-        options?: { tag?: string } // <-- Add options here
+        options?: SpawnOptions
     ): Promise<UnrealLocator>;
 
     /** THE IMPLEMENTATION */
@@ -85,10 +87,12 @@ export class UnrealWorld {
     async spawnActor(
         classOrString: any,
         blueprintPath: string,
-        location = { X: 0, Y: 0, Z: 0 },
-        rotation = { Pitch: 0, Yaw: 0, Roll: 0 },
-        options?: { tag?: string }
+        options: SpawnOptions = {}
     ): Promise<any> {
+
+        const targetLocation = options.location ?? { X: 0, Y: 0, Z: 0 };
+        const targetRotation = options.rotation ?? { Pitch: 0, Yaw: 0, Roll: 0 };
+        const targetTag = options.tag ?? "";
 
         // Pass the tag to C++ (default to empty string if undefined)
         const actorPath: string = await this.client.callFunction(
@@ -96,9 +100,9 @@ export class UnrealWorld {
             'SpawnActorInWorld',
             {
                 ClassPath: blueprintPath,
-                Location: location,
-                Rotation: rotation,
-                OptionalTag: options?.tag || ""
+                Location: targetLocation,
+                Rotation: targetRotation,
+                OptionalTag: targetTag
             }
         );
 

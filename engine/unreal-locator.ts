@@ -146,4 +146,39 @@ export class UnrealLocator {
 
         return isVisible;
     }
+
+    /**
+   * Calls a UFUNCTION(BlueprintCallable) directly on this specific actor instance.
+   * * @param functionName The exact name of the C++ or Blueprint function to execute.
+   * @param parameters An optional object mapping parameter names to their values.
+   * @returns The return value of the UFUNCTION (if any).
+   */
+    @step('Call actor function: {0}, {1}')
+    async callActorFunction(functionName: string, parameters: Record<string, any> = {}): Promise<any> {
+
+        // We get the exact memory string of this actor (e.g., "/Game/Maps/UEDPIE_0_Map.Map:PersistentLevel.BP_Marshmallow_C_1")
+        const actorPath = await this.getStrictPath(); // Or whatever method/property stores your path
+
+        // We route the RC call directly to the actor itself, bypassing the helper library!
+        return await this.client.callFunction(
+            actorPath,
+            functionName,
+            parameters
+        );
+    }
+
+    @step('Get Actor Location')
+    async getLocation(): Promise<Vector3D> {
+        const loc = await this.callActorFunction('K2_GetActorLocation');
+        return loc as Vector3D;
+    }
+
+    /**
+     * Retrieves the current 3D world rotation of this actor.
+     */
+    @step('Get Actor Rotation')
+    async getRotation(): Promise<{ Pitch: number, Yaw: number, Roll: number }> {
+        const rot = await this.callActorFunction('K2_GetActorRotation');
+        return rot;
+    }
 }
