@@ -11,6 +11,7 @@ export type LocatorConstructor<T extends UnrealLocator> = new (
 
 export class UnrealWorld {
     private helperPath = '/Script/MarshmallowMayhem.Default__PlaywrightHelperLibrary';
+    private trackedActorPaths: string[] = [];
 
     constructor(public client: UnrealRCClient) { }
 
@@ -105,6 +106,8 @@ export class UnrealWorld {
             throw new Error(`Failed to spawn actor: ${actorPath}`);
         }
 
+        this.trackedActorPaths.push(actorPath);
+
         const description = `Spawned: ${blueprintPath} | Tag: ${options?.tag || 'none'}`;
 
         if (typeof classOrString === 'string') {
@@ -112,6 +115,20 @@ export class UnrealWorld {
         } else {
             return new classOrString(this.client, [actorPath], description);
         }
+    }
+
+    async cleanup(): Promise<void> {
+        for (const path of this.trackedActorPaths) {
+            try {
+                await this.client.callFunction(this.helperPath, 'DestroyActorByPath', { ActorPath: path });
+            } catch (e) {
+                // We catch errors silently here because the test itself might have killed the actor
+                // (e.g., testing a death mechanic), meaning the path no longer exists.
+            }
+        }
+
+        // Clear the ledger
+        this.trackedActorPaths = [];
     }
 
     async waitForActor<T extends UnrealLocator>(
@@ -149,5 +166,38 @@ export class UnrealWorld {
             timeout: options?.timeout || 10000,
             message: `Waiting for ${options?.tag || classOrString.name} to spawn in world`
         });
+    }
+
+    /** OVERLOADS */
+    async getActorsOnScreen<T extends UnrealLocator>(
+        LocatorClass: LocatorConstructor<T>,
+        blueprintPath: string
+    ): Promise<T[]>;
+
+    async getActorsOnScreen(
+        className: string,
+        blueprintPath: string
+    ): Promise<UnrealLocator[]>;
+
+    /** IMPLEMENTATION */
+    @step('Get Actors On Screen: {1}')
+    async getActorsOnScreen(
+        classOrString: any,
+        blueprintPath: string
+    ): Promise<any[]> {
+
+        const actorPaths: string[] = await this.client.callFunction(
+            this.helperPath,
+            'GetActorsOnScreen',
+            { ClassPath: blueprintPath }
+        );
+
+        const description = `Visible instances of: ${blueprintPath}`;
+
+        if (typeof classOrString === 'string') {
+            return actorPaths.map(path => new UnrealLocator(this.client, [path], description));
+        } else {
+            return actorPaths.map(path => new classOrString(this.client, [path], description));
+        }
     }
 }

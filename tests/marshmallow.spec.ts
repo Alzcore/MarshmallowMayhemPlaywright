@@ -5,7 +5,7 @@ import { GameAssets } from '../support/assets';
 import { expect } from '../support/custom-matchers';
 import { GameplayTags } from '../support/tags';
 
-test('Punching another marshmallow lowers there health', async ({ world, page }) => {
+test('Melee Attack deals damage', async ({ world, page }) => {
 
     const attacker = await world.getByActor(MMCharacter, { tag: 'Attacker' });
     const defender = await world.getByActor(MMCharacter, { tag: 'Defender' });
@@ -22,7 +22,7 @@ test('Punching another marshmallow lowers there health', async ({ world, page })
 
 });
 
-test('Marshmallow catches fire when standing in fire', async ({ world, page }) => {
+test('Marshmallow catches fire when standing near fire', async ({ world, page }) => {
     const marshmallow = await world.spawnActor(MMCharacter, GameAssets.Characters.Marshmallow)
     await expect(marshmallow).not.toHaveGameplayTag(GameplayTags.Status.OnFire);
     await world.spawnActor('Hazard', GameAssets.Hazards.Fire)

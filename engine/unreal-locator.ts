@@ -1,7 +1,6 @@
-// engine/unreal-locator.ts
-import { step } from '../support/decorators';
 import { waitForCondition } from '../support/polling';
 import { UnrealRCClient } from './unreal-rc-client';
+import { step } from '../support/decorators';
 
 export class UnrealLocator {
     protected helperLibraryPath = '/Script/MarshmallowMayhem.Default__PlaywrightHelperLibrary';
@@ -135,5 +134,16 @@ export class UnrealLocator {
         });
 
         return hasTag;
+    }
+    /**
+   * Calculates if this actor's center point is currently inside the player's camera frustum.
+   */
+    @step('Check Visibility')
+    async isVisibleOnScreen(): Promise<boolean> {
+        const isVisible = await this.client.callFunction(this.helperLibraryPath, 'IsActorOnScreen', {
+            ActorPath: this.getStrictPath()
+        });
+
+        return isVisible;
     }
 }

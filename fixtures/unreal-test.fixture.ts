@@ -11,6 +11,7 @@ export const test = base.extend<{ world: UnrealWorld }>({
         const client = new UnrealRCClient(request);
         const world = new UnrealWorld(client);
         await use(world);
+        await world.cleanup()
     },
 
     // 2. Override the default 'page' fixture to handle the stream loading

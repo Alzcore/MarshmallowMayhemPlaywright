@@ -83,13 +83,35 @@ export const expect = baseExpect.extend({
             if (hasTag !== this.isNot) {
                 break;
             }
+        }
+        return {
+            pass: hasTag,
+            message: () => `Timed out waiting for actor to ${this.isNot ? 'lose' : 'gain'} gameplay tag: ${tag}`,
+        }
+    },
+
+    async toBeVisibleOnScreen(
+        locator: UnrealLocator,
+        options = { timeout: 5000 }
+    ) {
+        const startTime = Date.now();
+        let isVisible = false;
+
+        // Polling Loop
+        while (Date.now() - startTime < options.timeout) {
+            isVisible = await locator.isVisibleOnScreen();
+
+            // Break early if the state matches what we expect
+            if (isVisible !== this.isNot) {
+                break;
+            }
 
             await new Promise(r => setTimeout(r, 100)); // Tick wait
         }
 
         return {
-            pass: hasTag,
-            message: () => `Timed out waiting for actor to ${this.isNot ? 'lose' : 'gain'} gameplay tag: ${tag}`,
+            pass: isVisible,
+            message: () => `Timed out waiting for actor to ${this.isNot ? 'disappear from' : 'appear on'} the screen.`,
         };
     }
 });
