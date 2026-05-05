@@ -12,6 +12,8 @@ test('Melee Attack deals damage', async ({ world, page }) => {
     const attacker = await world.spawnActor(MMCharacter, GameAssets.Characters.Marshmallow, { tag: 'Attacker', location: { X: 0, Y: 400, Z: 66 }, rotation: { Yaw: 270, Pitch: 0, Roll: 0 } });
     const defender = await world.spawnActor(MMCharacter, GameAssets.Characters.Marshmallow, { tag: 'Defender', location: { X: 0, Y: 200, Z: 66 }, rotation: { Yaw: 90.0, Pitch: 0, Roll: 0 } });
 
+    await page.waitForTimeout(2000);
+
     const attackerDamage = await attacker.getGasAttribute("MMAttributeSet", "Damage")
 
     const previousHealth = await defender.getGasAttribute("MMAttributeSet", "Health")
@@ -19,6 +21,7 @@ test('Melee Attack deals damage', async ({ world, page }) => {
     await attacker.tapInput("Ability.Attack.Melee");
 
     await expect(defender).toHaveGasAttribute("MMAttributeSet", "Health", previousHealth - attackerDamage);
+    await page.waitForTimeout(2000);
 
 });
 
