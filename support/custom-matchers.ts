@@ -4,6 +4,40 @@ import { UnrealLocator } from '../engine/unreal-locator';
 import { calculateDistance, Vector3D } from './math';
 
 export const expect = baseExpect.extend({
+    async toStayWithinFrameBudget(
+        world: any, // Pass your world fixture
+        options: { minimumFps: number; action: () => Promise<void> }
+    ) {
+        let lowestRecordedFps = 999;
+        let actionCompleted = false;
+
+        // 1. Start the monitoring loop in the background
+        const monitorPromise = (async () => {
+            while (!actionCompleted) {
+                const currentFps = await world.getCurrentFps();
+                if (currentFps < lowestRecordedFps) {
+                    lowestRecordedFps = currentFps;
+                }
+                // Poll every 50ms (roughly every 3 frames at 60fps)
+                await new Promise(r => setTimeout(r, 50));
+            }
+        })();
+
+        // 2. Execute the game action (e.g., spawn the explosion)
+        await options.action();
+
+        // 3. Stop the monitor
+        actionCompleted = true;
+        await monitorPromise;
+
+        // 4. Assert the result
+        const passed = lowestRecordedFps >= options.minimumFps;
+
+        return {
+            pass: passed,
+            message: () => `Expected frame rate to stay above ${options.minimumFps} FPS, but it dipped to ${lowestRecordedFps.toFixed(1)} FPS during the action.`,
+        };
+    },
 
     async toHaveGasAttribute(
         locator: UnrealLocator, // <-- Now accepts ANY game object!

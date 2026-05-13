@@ -9,9 +9,12 @@ export type LocatorConstructor<T extends UnrealLocator> = new (
     description: string
 ) => T;
 
+export type Location = { X: number; Y: number; Z: number };
+export type Rotation = { Pitch: number; Yaw: number; Roll: number };
+
 export interface SpawnOptions {
-    location?: { X: number; Y: number; Z: number };
-    rotation?: { Pitch: number; Yaw: number; Roll: number };
+    location?: Location;
+    rotation?: Rotation;
     tag?: string;
 }
 
