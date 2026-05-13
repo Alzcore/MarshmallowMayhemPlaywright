@@ -1,24 +1,26 @@
 
-import { test } from '../fixtures/unreal-test.fixture';
+import { test, expect } from '@specter/test';
 import { MMCharacter } from '../game-objects/characters/mm-character'
 import { GameAssets } from '../support/assets';
-import { expect } from '../support/custom-matchers';
 import { GameplayTags } from '../support/tags';
 
 test.describe.configure({ mode: 'serial' })
 
-test('Melee Attack deals damage', async ({ world, page }) => {
+test('Melee Attack deals damage', async ({ world }) => {
 
-    const attacker = await world.spawnActor(MMCharacter, GameAssets.Characters.Marshmallow, { tag: 'Attacker', location: { X: 0, Y: 400, Z: 66 }, rotation: { Yaw: 270, Pitch: 0, Roll: 0 } });
-    const defender = await world.spawnActor(MMCharacter, GameAssets.Characters.Marshmallow, { tag: 'Defender', location: { X: 0, Y: 200, Z: 66 }, rotation: { Yaw: 90.0, Pitch: 0, Roll: 0 } });
+    // The clean, enterprise-grade test script
+    const attacker = await world.spawnActor(GameAssets.Characters.Marshmallow, { tag: 'Attacker', location: { X: 0, Y: 400, Z: 66 }, rotation: { Yaw: 270, Pitch: 0, Roll: 0 } });
+    const defender = await world.spawnActor(GameAssets.Characters.Marshmallow, { tag: 'Defender', location: { X: 0, Y: 200, Z: 66 }, rotation: { Yaw: 90.0, Pitch: 0, Roll: 0 } });
 
-    const attackerDamage = await attacker.getGasAttribute("MMAttributeSet", "Damage")
+    // Read the baseline memory states
+    const attackerDamage = await attacker.getAttributeValue("MMAttributeSet", "Damage");
+    const previousHealth = await defender.getAttributeValue("MMAttributeSet", "Health");
 
-    const previousHealth = await defender.getGasAttribute("MMAttributeSet", "Health")
+    // Fire the native C++ ability
+    await attacker.triggerAbilityByTag("Ability.Attack.Melee");
 
-    await attacker.tapInput("Ability.Attack.Melee");
-
-    await expect(defender).toHaveGasAttribute("MMAttributeSet", "Health", previousHealth - attackerDamage);
+    // Assert the exact math on the physics/GAS thread
+    await expect(defender).toHaveAttributeValue("MMAttributeSet", "Health", previousHealth - attackerDamage);
 
 });
 
