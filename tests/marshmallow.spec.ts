@@ -6,7 +6,7 @@ import { GameplayTags } from '../support/tags';
 
 test.describe.configure({ mode: 'serial' })
 
-test('Melee Attack deals damage', async ({ world }) => {
+test('Melee Attack deals damage', async ({ world, page }) => {
 
     // The clean, enterprise-grade test script
     const attacker = await world.spawnActor(GameAssets.Characters.Marshmallow, { tag: 'Attacker', location: { X: 0, Y: 400, Z: 66 }, rotation: { Yaw: 270, Pitch: 0, Roll: 0 } });
@@ -21,16 +21,17 @@ test('Melee Attack deals damage', async ({ world }) => {
 
     // Assert the exact math on the physics/GAS thread
     await expect(defender).toHaveAttributeValue("MMAttributeSet", "Health", previousHealth - attackerDamage);
+    // await expect(defender).not.toHaveAttributeValue("MMAttributeSet", "Health", previousHealth);
 
 });
 
-test('Marshmallow catches fire when standing near fire', async ({ world }) => {
+test('Marshmallow catches fire when standing near fire', async ({ world, page }) => {
     const marshmallow = await world.spawnActor(GameAssets.Characters.Marshmallow)
 
     const startLocation = await marshmallow.getLocation()
     console.log(startLocation)
     // await expect(marshmallow).not.toHaveGameplayTag(GameplayTags.Status.OnFire);
-    // await world.spawnActor('Hazard', GameAssets.Hazards.Fire)
+    await world.spawnActor(GameAssets.Hazards.Fire)
 
     // await expect(marshmallow).toHaveGameplayTag(GameplayTags.Status.OnFire);
 
