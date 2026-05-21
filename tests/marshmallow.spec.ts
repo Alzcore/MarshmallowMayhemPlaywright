@@ -1,4 +1,5 @@
 
+import { test, expect } from '@specter/test'
 import { MMCharacter } from '../game-objects/characters/mm-character'
 import { GameAssets } from '../support/assets';
 import { GameplayTags } from '../support/tags';
@@ -24,6 +25,7 @@ test('Melee Attack deals damage', async ({ world, page }) => {
 
 });
 
+<<<<<<< HEAD
 test('Marshmallow catches fire when standing near fire', async ({ world, page }) => {
     const marshmallow = await world.spawnActor(GameAssets.Characters.Marshmallow)
 
@@ -36,3 +38,16 @@ test('Marshmallow catches fire when standing near fire', async ({ world, page })
 
     // await expect(marshmallow).toHaveMovedFurtherThan(startLocation, 1000)
 })
+=======
+// test('Marshmallow catches fire when standing near fire', async ({ world, page }) => {
+//     const marshmallow = await world.spawnActor(MMCharacter, GameAssets.Characters.Marshmallow)
+
+//     const startLocation = await marshmallow.getLocation()
+//     await expect(marshmallow).not.toHaveGameplayTag(GameplayTags.Status.OnFire);
+//     await world.spawnActor('Hazard', GameAssets.Hazards.Fire)
+
+//     await expect(marshmallow).toHaveGameplayTag(GameplayTags.Status.OnFire);
+
+//     await expect(marshmallow).toHaveMovedFurtherThan(startLocation, 1000)
+// })
+>>>>>>> fcd4f59f37ce74355643175b0539bc14b059ea2e
