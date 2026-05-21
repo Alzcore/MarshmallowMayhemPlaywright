@@ -16,6 +16,7 @@ test('Melee Attack deals damage', async ({ world, page }) => {
     const attackerDamage = await attacker.getAttributeValue("MMAttributeSet", "Damage");
     const previousHealth = await defender.getAttributeValue("MMAttributeSet", "Health");
 
+    const character = world.actor()
     // Fire the native C++ ability
     await attacker.triggerAbilityByTag("Ability.Attack.Melee");
 

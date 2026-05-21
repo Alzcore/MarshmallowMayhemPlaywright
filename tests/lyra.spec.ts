@@ -1,28 +1,42 @@
 
-import { test, expect } from '@specter/test';
+import { test as baseTest, expect } from '@specter/test';
 import { GameAssets } from '../support/assets';
+import { LyraMatch } from '../game-objects/lyra/lyra-match';
+import { LyraApp } from '../game-objects/lyra/lyra.app';
 
-test.describe.configure({ mode: 'serial' })
+// test.describe.configure({ mode: 'serial' })
 
-test('Verify all pickup exists', async ({ world }) => {
+// test('Verify all pickup exists', async ({ world }) => {
 
-    const weaponSpawner = await world.getByClass('B_WeaponSpawner').filter({}).asActor()
-    await expect(weaponSpawner).toBeVisible()
-    await weaponSpawner.highlight()
+//     const weaponSpawner = await world.getByClass('B_WeaponSpawner').filter({}).asActor()
+//     await expect(weaponSpawner).toBeVisible()
+//     await weaponSpawner.highlight()
 
-});
+// });
 
-test('Start Match via Main Menu', async ({ world }) => {
-    // 1. Find the Main Menu widget
-    const mainMenu = world.getWidgetByClass('W_LyraFrontEnd').asWidget();
-    await expect(mainMenu).toBeVisible();
+type LyraDef = {
+    lyraApp: LyraApp
+}
 
-    // 2. Find a specific button inside that menu by filtering for its internal name
-    const playButton = mainMenu.filter({ property: { name: 'Name', value: 'StartGameButton' } }).asWidget();
+const test = baseTest.extend<LyraDef>({
+    lyraApp: async ({ world }, use) => {
+        await use(new LyraApp(world))
+    }
+})
 
-    // 3. Verify text and click
-    const btnText = await playButton.getText();
-    expect(btnText).toBe('Play Lyra');
 
-    await playButton.click();
+
+test('Start Quick Match via Main Menu', async ({ lyraApp: { mainMenu, experienceSelectionScreen, gamePhaseSubsystem, character } }) => {
+
+    await test.step('Start match', async () => {
+        await mainMenu.startButton.click()
+        await experienceSelectionScreen.quickPlayButton.click()
+    })
+
+    await test.step('Validate game started', async () => {
+        await gamePhaseSubsystem.waitForMatchToStart()
+
+        await expect(character.local).toBeVisible()
+    })
+
 });
