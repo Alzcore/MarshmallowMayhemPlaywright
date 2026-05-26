@@ -4,7 +4,7 @@ export class LyraMatch {
     private phaseSubsystem: SpecterLocator;
 
     constructor(private world: SpecterWorld) {
-        this.phaseSubsystem = this.world.getSubsystem('LyraGamePhaseSubsystem');
+        this.phaseSubsystem = this.world.subsystem('LyraGamePhaseSubsystem');
     }
 
 

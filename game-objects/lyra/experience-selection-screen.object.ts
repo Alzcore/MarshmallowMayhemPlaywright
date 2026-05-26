@@ -4,7 +4,7 @@ export class ExperienceSelectionScreenObject {
     readonly root: WidgetLocator
     readonly quickPlayButton: WidgetLocator
     constructor(private world: SpecterWorld) {
-        this.root = world.getWidgetByClass('W_ExperienceSelectionScreen')
+        this.root = world.widget('W_ExperienceSelectionScreen')
         this.quickPlayButton = this.root.getChild("QuickplayButton")
     }
 }

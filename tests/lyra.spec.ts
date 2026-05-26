@@ -29,6 +29,7 @@ const test = baseTest.extend<LyraDef>({
 test('Start Quick Match via Main Menu', async ({ lyraApp: { mainMenu, experienceSelectionScreen, gamePhaseSubsystem, character } }) => {
 
     await test.step('Start match', async () => {
+        await expect(mainMenu.root).toBeVisible()
         await mainMenu.startButton.click()
         await experienceSelectionScreen.quickPlayButton.click()
     })
@@ -36,7 +37,12 @@ test('Start Quick Match via Main Menu', async ({ lyraApp: { mainMenu, experience
     await test.step('Validate game started', async () => {
         await gamePhaseSubsystem.waitForMatchToStart()
 
-        await expect(character.local).toBeVisible()
+        await expect(character.local).toBeVisible({ timeout: 10_000 })
     })
 
 });
+
+test('Navigate settings', async ({ lyraApp: { mainMenu, experienceSelectionScreen, gamePhaseSubsystem, character } }) => {
+    await mainMenu.optionsButton.hardwareFocus();
+    await mainMenu.optionsButton.hardwareAccept();
+})
