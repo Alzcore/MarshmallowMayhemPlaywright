@@ -7,11 +7,21 @@ test.describe.configure({ mode: 'serial' })
 
 test('Melee Attack deals damage', async ({ world }) => {
 
-    const attacker = await world.spawnActor(GameAssets.Characters.Marshmallow, { tag: 'Attacker', location: { X: 0, Y: 400, Z: 66 }, rotation: { Yaw: 270, Pitch: 0, Roll: 0 } });
-    const defender = await world.spawnActor(GameAssets.Characters.Marshmallow, { tag: 'Defender', location: { X: 0, Y: 200, Z: 66 }, rotation: { Yaw: 90.0, Pitch: 0, Roll: 0 } });
+    const { attacker, defender } = await test.step("Spawn Actors", async () => {
+        const attacker = await world.spawnActor(GameAssets.Characters.Marshmallow, { tag: 'Attacker', location: { X: 0, Y: 400, Z: 66 }, rotation: { Yaw: 270, Pitch: 0, Roll: 0 } });
+        const defender = await world.spawnActor(GameAssets.Characters.Marshmallow, { tag: 'Defender', location: { X: 0, Y: 200, Z: 66 }, rotation: { Yaw: 90.0, Pitch: 0, Roll: 0 } });
 
-    const attackerDamage = await attacker.getAttributeValue("MMAttributeSet", "Damage");
-    const previousHealth = await defender.getAttributeValue("MMAttributeSet", "Health");
+        return { attacker, defender }
+    })
+
+    const { attackerDamage, previousHealth } = await test.step("Get Attribute Values", async () => {
+        const attackerDamage = await attacker.getAttributeValue("MMAttributeSet", "Damage");
+        const previousHealth = await defender.getAttributeValue("MMAttributeSet", "Health");
+
+        return { attackerDamage, previousHealth }
+    })
+
+
 
     await attacker.triggerAbilityByTag("Ability.Attack.Melee");
 
