@@ -26,12 +26,13 @@ const test = baseTest.extend<LyraDef>({
 
 
 
-test('Start Quick Match via Main Menu', async ({ lyraApp: { mainMenu, experienceSelectionScreen, gamePhaseSubsystem, character } }) => {
+test('Start Quick Match via Main Menu', async ({ lyraApp: { mainMenu, experienceSelectionScreen, gamePhaseSubsystem, character, world } }) => {
 
+    await world.loadLevel('L_LyraFrontEnd')
     await test.step('Start match', async () => {
         await expect(mainMenu.root).toBeVisible()
-        await mainMenu.startButton.click()
-        await experienceSelectionScreen.quickPlayButton.click()
+        await mainMenu.startButton.click({ strategy: 'broadcast' })
+        await experienceSelectionScreen.quickPlayButton.click({ strategy: 'broadcast' })
     })
 
     await test.step('Validate game started', async () => {

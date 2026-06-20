@@ -8,8 +8,9 @@ test.describe.configure({ mode: 'serial' })
 test('Melee Attack deals damage', async ({ world }) => {
 
     const { attacker, defender } = await test.step("Spawn Actors", async () => {
-        const attacker = await world.spawnActor(GameAssets.Characters.Marshmallow, { tag: 'Attacker', location: { X: 0, Y: 400, Z: 66 }, rotation: { Yaw: 270, Pitch: 0, Roll: 0 } });
-        const defender = await world.spawnActor(GameAssets.Characters.Marshmallow, { tag: 'Defender', location: { X: 0, Y: 200, Z: 66 }, rotation: { Yaw: 90.0, Pitch: 0, Roll: 0 } });
+        const attacker = await world.spawnActor(GameAssets.Characters.Marshmallow, { tag: 'Attacker', location: { x: 0, y: 400, z: 66 }, rotation: { yaw: 270, pitch: 0, roll: 0 } });
+        // The attacker's melee range is 150 units (75 distance + 75 radius). Moving the defender closer (Y:300) guarantees a hit.
+        const defender = await world.spawnActor(GameAssets.Characters.Marshmallow, { tag: 'Defender', location: { x: 0, y: 300, z: 66 }, rotation: { yaw: 90.0, pitch: 0, roll: 0 } });
 
         return { attacker, defender }
     })
@@ -34,14 +35,14 @@ test('Verify ui navigation path', async ({ world }) => {
     //await lastButton.hardwareAccept()
 })
 
-// test('Marshmallow catches fire when standing near fire', async ({ world, page }) => {
-//     const marshmallow = await world.spawnActor(GameAssets.Characters.Marshmallow)
+test('Marshmallow catches fire when standing near fire', async ({ world, page }) => {
+    const marshmallow = await world.spawnActor(GameAssets.Characters.Marshmallow)
 
-//     const startLocation = await marshmallow.getLocation()
-//     await expect(marshmallow).not.toHaveGameplayTag(GameplayTags.Status.OnFire);
-//     await world.spawnActor(GameAssets.Hazards.Fire)
+    const startLocation = await marshmallow.getLocation()
+    await expect(marshmallow).not.toHaveGameplayTag(GameplayTags.Status.OnFire);
+    await world.spawnActor(GameAssets.Hazards.Fire)
 
-//     await expect(marshmallow).toHaveGameplayTag(GameplayTags.Status.OnFire);
+    await expect(marshmallow).toHaveGameplayTag(GameplayTags.Status.OnFire);
 
-//     await expect(marshmallow).toHaveMovedFurtherThan(startLocation, 1000)
-// })
+    await expect(marshmallow).toHaveMovedFurtherThan(startLocation, 1000)
+})
