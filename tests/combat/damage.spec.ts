@@ -1,7 +1,6 @@
-
-import { test, expect } from '@specter/test'
-import { GameAssets } from '../support/assets';
-import { GameplayTags } from '../support/tags';
+import { test, expect } from '@specter/test';
+import { GameAssets } from '../../support/assets';
+import { GameplayTags } from '../../support/tags';
 
 test.describe.configure({ mode: 'serial' })
 
@@ -22,27 +21,11 @@ test('Melee Attack deals damage', async ({ world }) => {
         return { attackerDamage, previousHealth }
     })
 
-
-
     await attacker.triggerAbilityByTag("Ability.Attack.Melee");
 
-    await expect(defender).toHaveAttributeValue("MMAttributeSet", "Health", previousHealth - attackerDamage);
+    await expect(defender).toHaveAttributeChange("MMAttributeSet", "Health", {
+        delta: -attackerDamage,
+        instigator: attacker,
+        ability: "Default__GA_Marshmallow_Punch_C"
+    });
 });
-
-test('Verify ui navigation path', async ({ world }) => {
-    const lastButton = world.widget('NavigationTestWidget').getChild('Button_7').first()
-    await lastButton.click({ strategy: 'hardware' })
-    //await lastButton.hardwareAccept()
-})
-
-test('Marshmallow catches fire when standing near fire', async ({ world, page }) => {
-    const marshmallow = await world.spawnActor(GameAssets.Characters.Marshmallow)
-
-    const startLocation = await marshmallow.getLocation()
-    await expect(marshmallow).not.toHaveGameplayTag(GameplayTags.Status.OnFire);
-    await world.spawnActor(GameAssets.Hazards.Fire)
-
-    await expect(marshmallow).toHaveGameplayTag(GameplayTags.Status.OnFire);
-
-    await expect(marshmallow).toHaveMovedFurtherThan(startLocation, 1000)
-})

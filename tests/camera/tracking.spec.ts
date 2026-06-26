@@ -1,9 +1,7 @@
+import { test, expect, Vector3 } from '@specter/test';
+import { GameAssets } from '../../support/assets';
 
-import { Location } from '../engine/unreal-world';
-import { test, expect, Vector3 } from '@specter/test'
-import { GameAssets } from '../support/assets';
-
-test.describe.configure({ mode: "serial" })
+test.describe.configure({ mode: 'serial' })
 
 test('Camera auto tracks players', async ({ world }) => {
 
@@ -22,13 +20,12 @@ test('Camera auto tracks players', async ({ world }) => {
 
 test('Players death removes camera tracking after three seconds', async ({ world }) => {
 
-    const marshmallow1 = await world.spawnActor(GameAssets.Characters.Marshmallow, { location: { X: 500, Y: 0, Z: 0 } })
-    const marshmallow2 = await world.spawnActor(GameAssets.Characters.Marshmallow, { location: { X: -500, Y: 0, Z: 0 } })
+    const marshmallow1 = await world.spawnActor(GameAssets.Characters.Marshmallow, { location: { x: 500, y: 0, z: 0 } })
+    const marshmallow2 = await world.spawnActor(GameAssets.Characters.Marshmallow, { location: { x: -500, y: 0, z: 0 } })
 
     await marshmallow2.applyGameplayEffect(GameAssets.Effects.Abyss)
 
     await expect(marshmallow1).toBeVisible({ onScreen: true })
     await expect(marshmallow2).not.toBeVisible({ onScreen: true })
-
 
 });

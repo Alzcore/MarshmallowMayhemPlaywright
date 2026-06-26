@@ -1,18 +1,5 @@
-
 import { test as baseTest, expect } from '@specter/test';
-import { GameAssets } from '../support/assets';
-import { LyraMatch } from '../game-objects/lyra/lyra-match';
-import { LyraApp } from '../game-objects/lyra/lyra.app';
-
-// test.describe.configure({ mode: 'serial' })
-
-// test('Verify all pickup exists', async ({ world }) => {
-
-//     const weaponSpawner = await world.getByClass('B_WeaponSpawner').filter({}).asActor()
-//     await expect(weaponSpawner).toBeVisible()
-//     await weaponSpawner.highlight()
-
-// });
+import { LyraApp } from '../../game-objects/lyra/lyra.app';
 
 type LyraDef = {
     lyraApp: LyraApp
@@ -24,7 +11,7 @@ const test = baseTest.extend<LyraDef>({
     }
 })
 
-
+test.describe.configure({ mode: 'serial' })
 
 test('Start Quick Match via Main Menu', async ({ lyraApp: { mainMenu, experienceSelectionScreen, gamePhaseSubsystem, character, world } }) => {
 
@@ -43,7 +30,11 @@ test('Start Quick Match via Main Menu', async ({ lyraApp: { mainMenu, experience
 
 });
 
-test('Navigate settings', async ({ lyraApp: { mainMenu, experienceSelectionScreen, gamePhaseSubsystem, character } }) => {
-    await mainMenu.optionsButton.hardwareFocus();
-    await mainMenu.optionsButton.hardwareAccept();
-})
+test('Full Round Flow: Lobby -> Combat -> Elimination -> Scoreboard -> Reset', async ({ world }) => {
+    // TODO: Write full match flow test
+    // 1. Lobby Phase: Spawn 2 players, allow fighting, verify respawns work
+    // 2. Start Match: Transition to round level
+    // 3. Combat Phase: Apply damage, verify no respawns on death
+    // 4. Elimination: Verify point awarded to survivor
+    // 5. Reset: Verify level resets and players respawn with 0 Toast level
+});

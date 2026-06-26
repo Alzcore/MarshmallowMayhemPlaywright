@@ -29,4 +29,14 @@ export class MMCharacter extends UnrealLocator {
         await this.releaseInput(tag);
     }
 
+    @step('Action: Jump')
+    async jump(durationMs: number = 100): Promise<void> {
+        await this.tapInput('Ability.Movement.Jump', durationMs);
+    }
+
+    @step('Action: Dash')
+    async dash(durationMs: number = 100): Promise<void> {
+        await this.tapInput('Ability.Movement.Dash', durationMs);
+    }
+
 }
